@@ -5,6 +5,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import { Lead } from "./models/Lead.js";
 import { Call } from "./models/Call.js";
+import { getCanadaDateContext } from "./utils/dateTime.js";
+
 
 dotenv.config();
 
@@ -52,17 +54,25 @@ app.post("/call-lead", async (req, res) => {
       await lead.save();
     }
 
+    const dateContext = getCanadaDateContext();
+
     const phoneCallResponse = await retellClient.call.createPhoneCall({
       from_number: "+14385331002",
       to_number: phoneNumber,
       override_agent_id: AGENT_ID,
+
       retell_llm_dynamic_variables: {
         name,
         email,
         phone_number: phoneNumber,
         subject: subject ?? "",
+        today_day: dateContext.today_day,
+        today_date: dateContext.today_date,
+        today_iso: dateContext.today_iso,
+        timezone: dateContext.timezone,
       },
     });
+    console.log("Phone call response:", phoneCallResponse);
 
     // 2. Create Call Record
     try {
@@ -270,6 +280,7 @@ app.post("/create-batch-call", async (req, res) => {
 
     // 1. Process Leads (Save/Update in DB)
     const tasks = [];
+    const dateContext = getCanadaDateContext();
     for (const leadData of leads) {
       const { name, email, phoneNumber } = leadData;
 
@@ -284,7 +295,6 @@ app.post("/create-batch-call", async (req, res) => {
         lead.phoneNumber = phoneNumber;
         await lead.save();
       }
-
       tasks.push({
         to_number: phoneNumber,
         override_agent_id: AGENT_ID,
@@ -292,6 +302,7 @@ app.post("/create-batch-call", async (req, res) => {
           name,
           email,
           phone_number: phoneNumber,
+          ...dateContext
         }
       });
     }
