@@ -68,10 +68,19 @@ export class EmailService {
     static async sendBatchCallReport(userEmail: string, report: any) {
         try {
             const reportEntries = Object.entries(report);
+            if (reportEntries.length === 0) return;
+
+            // Extract lead type from the first entry (assuming all leads in a batch have the same type)
+            const firstEntry = reportEntries[0];
+            if (!firstEntry) return;
+
+            const leadData: any = firstEntry[1];
+            const leadType = leadData.leadDetails.leadType;
+            const isSeller = leadType === "seller";
 
             const tableRows = reportEntries.map(([phoneNumber, data]: [string, any]) => {
                 const { callDetails, leadDetails } = data;
-                return `
+                let row = `
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 8px;">${leadDetails.name}</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">${phoneNumber}</td>
@@ -79,12 +88,19 @@ export class EmailService {
                         <td style="border: 1px solid #ddd; padding: 8px;">${callDetails.semtiment || 'N/A'}</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">${callDetails.analysis || 'N/A'}</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">${callDetails.followUp || ''}</td>
-                    </tr>
                 `;
+
+                if (isSeller) {
+                    row += `<td style="border: 1px solid #ddd; padding: 8px;">${callDetails.Appointment || ''}</td>`;
+                }
+
+                row += `</tr>`;
+                return row;
             }).join('');
 
             const htmlContent = `
                 <h2>Batch Call Report</h2>
+                <p><strong>Lead Type:</strong> ${leadType.charAt(0).toUpperCase() + leadType.slice(1)}s</p>
                 <p>Total Leads: ${reportEntries.length}</p>
                 <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
                     <thead>
@@ -95,6 +111,7 @@ export class EmailService {
                             <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Sentiment</th>
                             <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Summary</th>
                             <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Follow-up</th>
+                            ${isSeller ? '<th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Appointment</th>' : ''}
                         </tr>
                     </thead>
                     <tbody>

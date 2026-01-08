@@ -30,7 +30,7 @@ export const generateReport = async (batchCallId: string) => {
                 status: call?.status,
                 semtiment: call?.analysis?.user_sentiment,
                 followUp: call?.analysis?.custom_analysis_data?.["Preferred Follow-Up Time & Days"],
-            },
+            } as Record<string, any>,
             leadDetails: {
                 name: leadDetails.name,
                 email: leadDetails.email,
@@ -41,6 +41,7 @@ export const generateReport = async (batchCallId: string) => {
 
         if (leadType === "seller") {
             reportData.leadDetails.address = leadDetails.address;
+            reportData.callDetails.Appointment = call?.analysis?.custom_analysis_data?.["Appointment Details"] || null;
         }
         report[phNo || ""] = reportData;
     }
