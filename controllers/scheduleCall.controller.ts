@@ -18,8 +18,10 @@ export class ScheduleCallController {
                     result = await ScheduleService.scheduleCall(phNo, callerNumber, delayTime, name, metadata, "contact-lead");
 
                 } else {
-                    result = await ScheduleService.scheduleCall(phNo, callerNumber, delayTime, name, "", "contact-lead");
+                    result = await ScheduleService.scheduleCall(phNo, callerNumber, delayTime, name, {}, "contact-lead");
                 }
+
+                return res.status(200).json(result);
             } catch (error: any) {
                 console.error("Error scheduling call:", error);
                 if (error.message === "Invalid time format. Could not parse natural language time." ||

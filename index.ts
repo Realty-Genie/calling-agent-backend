@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.route";
 import adminRouter from "./routes/admin.route";
 import webhookRouter from "./routes/webhook.route";
 import scheduleCallRouter from "./routes/scheduleCall.route.ts";
+import "./workers/callSchedule.worker"; // Start the worker to process scheduled calls
 
 dotenv.config();
 

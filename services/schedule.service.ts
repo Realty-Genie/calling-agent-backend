@@ -8,7 +8,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export class ScheduleService {
-    static async scheduleCall(phNo: string, fromNumber: string, delayTime: string | number, name: string, metadata: any = "", scheduleType: string = "call-schedule") {
+    static async scheduleCall(phNo: string, fromNumber: string, delayTime: string | number, name: string, metadata: any = {}, scheduleType: string = "call-schedule") {
         let scheduledDate: dayjs.Dayjs;
         let delay: number;
 

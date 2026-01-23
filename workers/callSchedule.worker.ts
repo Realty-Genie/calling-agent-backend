@@ -23,7 +23,18 @@ const worker = new Worker('call-schedule-queue', async (job) => {
         console.log(`Job data: ${JSON.stringify(job.data, null, 2)}`);
 
         // TODO: Realty Genie Call lead logic
+        try {
+            const phoneCallResponse = await RetellService.createPhoneCall({
+                from_number: job.data.fromNumber,
+                to_number: job.data.phNo,
+                override_agent_id: process.env.AGENT_POC,
+                metadata: ""
+            });
+            console.log(phoneCallResponse);
 
+        } catch (error) {
+            console.error("Retell API error:", error);
+        }
 
     } else if (job.name === 'call-schedule') {
         console.log('call-schedule-retell job');
@@ -85,7 +96,7 @@ const worker = new Worker('call-schedule-queue', async (job) => {
                 }
             }
         }
-    }else{
+    } else {
         console.log("Invalid job name:", job.name);
     }
 
