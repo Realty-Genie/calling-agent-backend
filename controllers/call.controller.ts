@@ -61,11 +61,12 @@ export class CallController {
             try {
                 lead = await Lead.findOne({ email, userId: user._id });
                 if (!lead) {
-                    lead = new Lead({ name, email, phoneNumber, userId: user._id, type: leadType });
+                    lead = new Lead({ name, email, phoneNumber, userId: user._id, type: leadType, address: address });
                     await lead.save();
                 } else {
                     lead.name = name;
                     lead.phoneNumber = phoneNumber;
+                    lead.address = address;
                     await lead.save();
                 }
             } catch (error) {
@@ -101,6 +102,11 @@ export class CallController {
                     to_number: phoneNumber,
                     override_agent_id: retellAgentId,
                     retell_llm_dynamic_variables: dynamicVariables,
+                    metadata: {
+                        sellerAgent: isSellerAgent ? true : false,
+                        agentId: agentId,
+                        leadId: lead._id
+                    },
                 });
             } catch (error) {
                 console.error("Retell API error:", error);
@@ -313,7 +319,9 @@ export class CallController {
                         override_agent_id: retellAgentId,
                         metadata: {
                             batchCallId: batchCallId,
-                            leadId: lead._id
+                            leadId: lead._id,
+                            sellerAgent: isSellerAgent ? true : false,
+                            agentId: agentId
                         },
                         retell_llm_dynamic_variables: dynamicVariables
                     });

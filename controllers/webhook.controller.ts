@@ -5,11 +5,14 @@ import { EmailService } from "../services/email.service";
 import { userModel } from "../models/user.model";
 import { BatchCallModel } from "../models/batchCall.model";
 import { generateReport } from "../utils/generateReport";
+import { ScheduleService } from "../services/schedule.service";
+import { compareSync } from "bcrypt";
+
 
 export class WebhookController {
     static async handleRetellWebhook(req: Request, res: Response) {
         console.log("Webhook received");
-        // console.log(req.body);
+        console.log(req.body);
         try {
             const { event, call } = req.body;
             const call_id = call?.call_id;
@@ -25,10 +28,20 @@ export class WebhookController {
 
             const batchCallId = call?.metadata?.batchCallId;
             const isBatchCallData = batchCallId ? true : false;
+            const scheduleStatus = call_analysis?.custom_analysis_data?.need_scheduling;
+            const needScheduling = (typeof scheduleStatus === 'string' && scheduleStatus.toLowerCase() === "true") ? true : false;
             let leadId;
             if (isBatchCallData) {
                 leadId = call?.metadata?.leadId;
                 try {
+
+                    if (needScheduling) {
+                        const delay = call_analysis?.custom_analysis_data?.schedule_delay;
+                        const leadDetail = await Lead.findById(leadId);
+                        const leadName = leadDetail?.name || "";
+                        const result = await ScheduleService.scheduleCall(call?.to_number, call?.from_number, delay, leadName, call?.metadata);
+                        return res.status(200).json({ message: "Call scheduled successfully", delay, result });
+                    }
 
                     const callRecord = new Call({
                         callId: call_id,
@@ -85,6 +98,7 @@ export class WebhookController {
             let callRecord;
             try {
                 callRecord = await Call.findOne({ callId: call_id });
+                leadId = callRecord?.leadId;
             } catch (error) {
                 console.error("Database error finding call record:", error);
                 return res.status(500).json({ message: "Database error" });
@@ -92,6 +106,18 @@ export class WebhookController {
 
             if (!callRecord) {
                 return res.status(404).json({ message: "Call record not found" });
+            }
+
+            if (needScheduling) {
+                const delay = call_analysis?.custom_analysis_data?.schedule_delay;
+                const leadDetail = await Lead.findById(leadId);
+                const leadName = leadDetail?.name || "";
+                try {
+                    const result = await ScheduleService.scheduleCall(call?.to_number, call?.from_number, delay, leadName, call?.metadata);
+                    return res.status(200).json({ message: "Call scheduled successfully", delay, result });
+                } catch (e) {
+                    console.log(`Error scheduling call: ${e}`);
+                }
             }
 
             if (!callRecord.analysis) {
