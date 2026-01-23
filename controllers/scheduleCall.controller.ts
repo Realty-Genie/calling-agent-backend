@@ -15,11 +15,10 @@ export class ScheduleCallController {
 
             try {
                 if (metadata) {
-                    result = await ScheduleService.scheduleCall(phNo, callerNumber, delayTime, name, metadata);
+                    result = await ScheduleService.scheduleCall(phNo, callerNumber, delayTime, name, metadata, "contact-lead");
 
                 } else {
-                    result = await ScheduleService.scheduleCall(phNo, callerNumber, delayTime, name);
-
+                    result = await ScheduleService.scheduleCall(phNo, callerNumber, delayTime, name, "", "contact-lead");
                 }
             } catch (error: any) {
                 console.error("Error scheduling call:", error);

@@ -8,7 +8,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export class ScheduleService {
-    static async scheduleCall(phNo: string, fromNumber: string, delayTime: string | number, name: string, metadata: any = "") {
+    static async scheduleCall(phNo: string, fromNumber: string, delayTime: string | number, name: string, metadata: any = "", scheduleType: string = "call-schedule") {
         let scheduledDate: dayjs.Dayjs;
         let delay: number;
 
@@ -35,7 +35,7 @@ export class ScheduleService {
             throw new Error("Invalid delay time format.");
         }
 
-        const job = await callScheduleQueue.add("call-schedule", { phNo, fromNumber, name, metadata }, { delay, removeOnComplete: true });
+        const job = await callScheduleQueue.add(scheduleType, { phNo, fromNumber, name, metadata }, { delay, removeOnComplete: true });
         console.log(`Call scheduled successfully for ${scheduledDate.format()} (Vancouver time) with delay ${delay}ms`);
         console.log(`Job Id: ${job.id}`);
 
