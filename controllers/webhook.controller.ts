@@ -60,8 +60,6 @@ export class WebhookController {
                         await callRecord.save();
                     } catch (e) {
                         console.error("Database error saving call record:", e);
-
-                        // Continue with email sending even if save fails, or decide based on business logic
                     }
 
                     const batchCall = await BatchCallModel.findOneAndUpdate(
@@ -128,7 +126,6 @@ export class WebhookController {
                 await callRecord.save();
             } catch (error) {
                 console.error("Database error saving call record:", error);
-                // Continue with email sending even if save fails, or decide based on business logic
             }
 
             let lead;
@@ -173,8 +170,7 @@ export class WebhookController {
                 }
             } catch (error) {
                 console.error("Email service error:", error);
-                // We might want to return 200 anyway if the webhook was received, 
-                // but logging the error is crucial.
+                return res.status(500).json({ success: false, message: "Failed to send email" });
             }
 
 
