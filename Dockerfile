@@ -1,3 +1,4 @@
+
 FROM oven/bun:1 AS base
 WORKDIR /app
 
@@ -28,6 +29,8 @@ COPY --from=prerelease /app/package.json .
 COPY --from=prerelease /app/models ./models
 COPY --from=prerelease /app/controllers ./controllers
 COPY --from=prerelease /app/routes ./routes
+COPY --from=prerelease /app/queues ./queues
+COPY --from=prerelease /app/workers ./workers
 COPY --from=prerelease /app/services ./services
 COPY --from=prerelease /app/middlewares ./middlewares
 COPY --from=prerelease /app/types ./types
