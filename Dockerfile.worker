@@ -36,5 +36,4 @@ COPY --from=prerelease /app/types ./types
 COPY --from=prerelease /app/utils ./utils
 
 USER bun
-EXPOSE 5000/tcp
 ENTRYPOINT [ "bun", "run", "workers/callSchedule.worker.ts" ]

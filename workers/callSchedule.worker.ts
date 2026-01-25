@@ -28,7 +28,7 @@ const worker = new Worker('call-schedule-queue', async (job) => {
                 from_number: job.data.fromNumber,
                 to_number: job.data.phNo,
                 override_agent_id: process.env.AGENT_POC,
-                metadata: ""
+                metadata: job.data.metadata
             });
             console.log(phoneCallResponse);
 
