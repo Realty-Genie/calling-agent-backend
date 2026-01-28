@@ -29,7 +29,10 @@ export class WebhookController {
             const batchCallId = call?.metadata?.batchCallId;
             const isBatchCallData = batchCallId ? true : false;
             const scheduleStatus = call_analysis?.custom_analysis_data?.need_scheduling;
-            const needScheduling = (typeof scheduleStatus === 'string' && scheduleStatus.toLowerCase() === "true") ? true : false;
+            console.log("scheduleStatus", scheduleStatus);
+            // console.log("typeof scheduleStatus", typeof scheduleStatus);
+            const needScheduling = ((typeof scheduleStatus === 'boolean' && scheduleStatus === true) || (typeof scheduleStatus === 'string' && scheduleStatus.toLowerCase() === "true")) ? true : false;
+            console.log("needScheduling", needScheduling);
             let leadId;
             if (isBatchCallData) {
                 leadId = call?.metadata?.leadId;
@@ -118,9 +121,14 @@ export class WebhookController {
                 }
             }
 
-            if (!callRecord.analysis) {
-                callRecord.analysis = call_analysis;
-            }
+            callRecord.analysis = call_analysis;
+            callRecord.transcript = call?.transcript;
+            callRecord.recordingUrl = call?.recording_url;
+            callRecord.durationMs = call?.duration_ms;
+            callRecord.status = call?.call_status;
+            callRecord.cost = call?.cost;
+            callRecord.fromNumber = call?.from_number;
+            callRecord.toNumber = call?.to_number;
 
             try {
                 await callRecord.save();
