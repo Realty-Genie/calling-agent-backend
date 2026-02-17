@@ -48,7 +48,7 @@ class OTPServices {
                 },
                 { upsert: true, new: true }
             );
-            await EmailService.sendMailForOTP(email, "OTP for Forgot Password", `Your verification code for CallGenie is ${otp}`);
+            await EmailService.sendMailForOTP(email, "OTP for Verification", `Your verification code for CallGenie is ${otp}`);
 
             return res.status(200).json({
                 message: "If email exists, OTP sent"
