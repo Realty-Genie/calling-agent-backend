@@ -441,7 +441,7 @@ export class CallController {
       JSON.stringify({
         scheduleType,
         metadata: JSON.stringify(jobData.metadata),
-        from_number: jobData.fromNumber,
+        fromNumber: jobData.fromNumber,
         name,
         phNo,
       }),
