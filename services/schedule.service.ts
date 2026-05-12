@@ -3,12 +3,13 @@ import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
 import { callScheduleQueue } from '../queues/call-schedule.queue';
 import { parseNaturalLanguageTime } from '../utils/dateTime';
+import { createJob, type ScheduleType } from '../utils/createJob';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export class ScheduleService {
-    static async scheduleCall(phNo: string, fromNumber: string, delayTime: string | number, name: string, metadata: any = {}, scheduleType: string = "call-schedule") {
+    static async scheduleCall(phNo: string, fromNumber: string, delayTime: string | number, name: string, metadata: any = {}, scheduleType: ScheduleType = "call-schedule") {
         let scheduledDate: dayjs.Dayjs;
         let delay: number;
 
@@ -35,15 +36,15 @@ export class ScheduleService {
             throw new Error("Invalid delay time format.");
         }
 
-        const job = await callScheduleQueue.add(scheduleType, { phNo, fromNumber, name, metadata }, { delay, removeOnComplete: true });
+        //const job = await callScheduleQueue.add(scheduleType, { phNo, fromNumber, name, metadata }, { delay, removeOnComplete: true });
+      const job = await createJob(scheduleType, { phNo, fromNumber, name, metadata }, delay);
         console.log(`Call scheduled successfully for ${scheduledDate.format()} (Vancouver time) with delay ${delay}ms`);
-        console.log(`Job Id: ${job.id}`);
+        console.log(`Job Id: ${job}`);
 
         return {
             message: "Call scheduled successfully",
             scheduledTime: scheduledDate.format(),
             delay,
-            jobId: job.id
         };
     }
 }

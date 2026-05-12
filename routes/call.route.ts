@@ -9,5 +9,6 @@ router.use(authMiddleware);
 router.post("/lead", CallController.initiateCall);
 router.get("/:callId", CallController.getCallDetails);
 router.post("/batch", CallController.createBatchCall);
+router.post('/call/publish', CallController.publishCall);
 
 export default router;
